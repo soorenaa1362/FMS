@@ -170,31 +170,24 @@
 @endsection
 
 @section('content')
-    <!-- Page Heading -->
-    {{-- <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800"> گزارش روزانه </h1>
-        <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-            <i class="fas fa-download fa-sm text-white-50"></i>
-            گزارش
-        </a>
-    </div> --}}
 
-    <div class="row">
+    <div class="row mb-2">
         <!-- Latest Today Incomes -->
         @if (blank($latestIncomes))
-        <div class="col-xl-12 col-md-12 p-3 bg-white">
-            <h5 class="mr-5 mt-2 mb-4">
-                امروز هیچ درآمدی ثبت نشده است .
-            </h5>
-        </div> <!-- col-xl-12 -->
+            <div class="col-xl-6 col-md-6 p-3 bg-white">
+                <h5 class="mr-5 mt-2 mb-4">
+                    امروز هیچ درآمدی ثبت نشده است .
+                </h5>
+            </div> <!-- col-xl-12 -->
         @else
-            <div class="col-xl-12 col-md-12 p-3 bg-white">
+            <div class="col-xl-6 col-md-6 p-3 bg-white">
                 <div class="d-flex flex-column flex-md-row text-center justify-content-md-between mb-4">
-                    <h5 class="font-weight-bold mb-1 mb-md-0">آخرین درآمدهای امروز</h5>
+                    <h5 class="font-weight-bold mb-1 mb-md-0">
+                        آخرین درآمدهای امروز
+                    </h5>
                 </div>
                 <div>
                     <table class="table table-bordered table-striped text-center">
-
                         <thead>
                             <tr>
                                 <th>عنوان</th>
@@ -206,7 +199,7 @@
                             @foreach ($latestIncomes as $key => $income)
                                 <tr>
                                     <td>
-                                        <a href="{{ route('incomes.show', ['income' => $income->id]) }}">{{ $income->title }}</a>
+                                        <a href="{{ route('incomes.show', [$income->id]) }}">{{ $income->title }}</a>
                                     </td>
                                     <td>{{ number_format($income->amount) }} تومان</td>
                                     <td>
@@ -222,15 +215,17 @@
 
         <!-- Latest Today Costs -->
         @if (blank($latestCosts))
-            <div class="col-xl-12 col-md-12 p-3 bg-white">
+            <div class="col-xl-6 col-md-6 p-3 bg-white">
                 <h5 class="mr-5 mt-2 mb-4">
                     امروز هیچ خرجکردی ثبت نشده است .
                 </h5>
             </div> <!-- col-xl-12 -->
         @else
-            <div class="col-xl-12 col-md-12 p-3 bg-white">
+            <div class="col-xl-6 col-md-6 p-3 bg-white">
                 <div class="d-flex flex-column flex-md-row text-center justify-content-md-between mb-4">
-                    <h5 class="font-weight-bold mb-1 mb-md-0">آخرین خرجکردهای امروز</h5>
+                    <h5 class="font-weight-bold mb-1 mb-md-0">
+                        آخرین خرجکردهای امروز
+                    </h5>
                 </div>
                 <div>
                     <table class="table table-bordered table-striped text-center">
@@ -243,10 +238,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($costs as $key => $cost)
+                            @foreach ($latestCosts as $key => $cost)
                                 <tr>
                                     <td>
-                                        <a href="{{ route('costs.show', ['cost' => $cost->id]) }}">{{ $cost->title }}</a>
+                                        <a href="{{ route('costs.show', [$cost->id]) }}">{{ $cost->title }}</a>
                                     </td>
                                     <td>{{ number_format($cost->amount) }} تومان</td>
                                     <td>
@@ -268,42 +263,58 @@
         <div class="col-xl-6 col-md-6 mb-4">
             <div class="card border-right-success shadow h-100 py-2">
                 <div class="card-body">
-                    <a href="{{ route('reports.day.incomes') }}" style="text-decoration: none;">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <h5 class="font-weight-bold text-success">
-                                    درآمد
-                                </h5>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-hand-holding-usd fa-3x text-gray-300"></i>
-                            </div>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <h5 class="font-weight-bold text-success">
+                                لیست درآمدها
+                            </h5>
                         </div>
-                    </a>
+                        <div class="col-auto">
+                            <i class="fas fa-hand-holding-usd fa-3x text-gray-300"></i>
+                        </div>
+                    </div>
                     <hr>
-                    <h6>{{ number_format(1648195) }} تومان</h6>
+                    <div class="d-flex flex-column flex-row text-center justify-content-md-between mb-4">
+                        <a href="{{ route('report.today.incomes') }}" class="btn btn-success mb-2">
+                            امروز
+                        </a>
+                        <a href="{{ route('report.week.incomes') }}" class="btn btn-info mb-2">
+                            هفته
+                        </a>
+                        <a href="{{ route('report.month.incomes') }}" class="btn btn-dark mb-2">
+                            ماه
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Reports (Costs) -->
         <div class="col-xl-6 col-md-6 mb-4">
-            <div class="card border-right-primary shadow h-100 py-2">
+            <div class="card border-right-warning shadow h-100 py-2">
                 <div class="card-body">
-                    <a href="#" style="text-decoration: none;">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <h5 class="font-weight-bold text-primary">
-                                    خرجکرد
-                                </h5>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-wallet fa-3x text-gray-300"></i>
-                            </div>
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <h5 class="font-weight-bold text-warning">
+                                لیست خرجکردها
+                            </h5>
                         </div>
-                    </a>
+                        <div class="col-auto">
+                            <i class="fas fa-wallet fa-3x text-gray-300"></i>
+                        </div>
+                    </div>
                     <hr>
-                    <h6>{{ number_format(1648195) }} تومان</h6>
+                    <div class="d-flex flex-column flex-row text-center justify-content-md-between mb-4">
+                        <a href="{{ route('report.today.costs') }}" class="btn btn-success mb-2">
+                            امروز
+                        </a>
+                        <a href="{{ route('report.week.costs') }}" class="btn btn-info mb-2">
+                            هفته
+                        </a>
+                        <a href="{{ route('report.month.costs') }}" class="btn btn-dark mb-2">
+                            ماه
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

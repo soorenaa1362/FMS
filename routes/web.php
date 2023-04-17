@@ -51,6 +51,16 @@ Route::get('cards/{card_id}/costs/week', [CostController::class, 'week'])->name(
 Route::get('cards/{card_id}/costs/month', [CostController::class, 'month'])->name('costs.month');
 
 
+// Reports : incomes
+Route::get('report/today/incomes', [ReportController::class, 'todayIncomes'])->name('report.today.incomes');
+Route::get('report/week/incomes', [ReportController::class, 'weekIncomes'])->name('report.week.incomes');
+Route::get('report/month/incomes', [ReportController::class, 'monthIncomes'])->name('report.month.incomes');
+
+// Reports : costs
+Route::get('report/today/costs', [ReportController::class, 'todayCosts'])->name('report.today.costs');
+Route::get('report/week/costs', [ReportController::class, 'weekCosts'])->name('report.week.costs');
+Route::get('report/month/costs', [ReportController::class, 'monthCosts'])->name('report.month.costs');
+
 
 
 
