@@ -20,24 +20,30 @@
                 @csrf
 
                 <div class="form-row">
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-4">
                         <label for="name">نام</label>
                         <input class="form-control" value="{{ $card->name }}" id="name" disabled>
                     </div>
 
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-4">
                         <label for="alias">نام مستعار</label>
                         <input class="form-control" value="{{ $card->alias }}" id="alias" disabled>
                     </div>
 
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-4">
                         <label for="number">شماره کارت</label>
                         <input class="form-control" value="{{ $card->number }}" id="number" disabled>
                     </div>
 
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-4">
                         <label for="cash">موجودی</label>
                         <input class="form-control" value="{{ number_format($card->cash) }} تومان" id="cash" disabled>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <label for="time">زمان ثبت کارت</label>
+                        <input class="form-control" value="{{ verta($card->created_at)->format('Y/m/d') }}" id="time" disabled>
+                        {{-- <input class="form-control" value="{{ verta($card->created_at) }}" id="time" disabled> --}}
                     </div>
 
                 </div>

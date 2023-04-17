@@ -32,7 +32,7 @@ class CostController extends Controller
     public function store(Request $request, $card_id)
     {
         $card = Card::where('id', $card_id)->first();
-        $cardCreatedAt = convertShamsiToGregorianDate($card->created_at);
+        $cardCreatedAt = verta($card->created_at)->format('Y/m/d');
 
         $request->validate([
             'title' => 'required',
@@ -47,21 +47,27 @@ class CostController extends Controller
         $cost->amount = $request->amount;
         $cost->description = $request->description;
         $cost->card_id = $card_id;
-        if($cost->amount > $card->cash){
-            // alert()->success('مبلغ وارد شده از موجودی حساب بیشتر است .', 'انجام نشد');
-            return redirect()->back();
+
+        if( verta($cost->date)->format('Y/m/d') >= $cardCreatedAt && verta($cost->date) <= verta(now()) ){
+            if( $cost->amount <= $card->cash ){
+                $cost->save();
+                $newCash = $card->cash - $cost->amount;
+
+                $card->update([
+                    'cash' => $newCash
+                ]);
+
+                alert()->success('تراکنش مورد نظر ثبت شد .', 'انجام شد.');
+                return redirect()->route('costs.index');
+            }else{
+                alert()->error('مبلغ نباید بیشتر از موجودی حساب باشد .', 'مبلغ درست نیست.');
+                return redirect()->back();
+            }
         }else{
-            $cost->save();
+            alert()->error('تاریخ تراکنش نباید قبل از تاریخ ثبت کارت و یا بعد از امروز باشد .', 'تاریخ بدرستی وارد نشده است');
+            return redirect()->back();
         }
 
-        $newCash = $card->cash - $cost->amount;
-
-        $card->update([
-            'cash' => $newCash
-        ]);
-
-        alert()->success('تراکنش مورد نظر ثبت شد .', 'انجام شد');
-        return redirect()->route('costs.index');
     }
 
 
@@ -90,6 +96,9 @@ class CostController extends Controller
     public function update(Request $request, $cost_id)
     {
         $cost = Cost::where('id', $cost_id)->first();
+        $oldCostAmount = $cost->amount;
+        $card = Card::where('id', $cost->card_id)->first();
+        $cardCreatedAt = verta($card->created_at)->format('Y/m/d');
 
         $request->validate([
             'title' => 'required',
@@ -98,15 +107,53 @@ class CostController extends Controller
             'card_id' => 'required',
         ]);
 
-        $cost->update([
-            'title' => $request->title,
-            'amount' => $request->amount,
-            'date' => convertShamsiToGregorianDate($request->date),
-            'card_id' => $request->card_id,
-        ]);
+        $cost->title = $request->title;
+        $cost->date = convertShamsiToGregorianDate($request->date);
+        $cost->amount = $request->amount;
+        $cost->card_id = $request->card_id;
 
-        alert()->success('تراکنش مورد نظر بروزرسانی شد .', 'انجام شد');
-        return redirect()->route('costs.index');
+        $newCard = Card::find($cost->card_id);
+
+        if( verta($cost->date)->format('Y/m/d') <= $cardCreatedAt && verta($cost->date)->format('Y/m/d') >= verta(now()) ){
+
+            if($card == $newCard){
+
+                $cost->update();
+                $newCash = ($card->cash + $oldCostAmount) - $cost->amount;
+                $card->update([
+                    'cash' => $newCash
+                ]);
+
+            }else{
+
+                if( $cost->amount <= $newCard->cash ){
+
+                    $cost->update();
+                    $oldCash = ($card->cash + $oldCostAmount);
+                    $card->update([
+                        'cash' => $oldCash
+                    ]);
+
+                    $newCash = $newCard->cash - $cost->amount;
+                    $newCard->update([
+                        'cash' => $newCash
+                    ]);
+
+                }else{
+
+                    alert()->error('مبلغ نباید بیشتر از موجودی حساب باشد .', 'مبلغ درست نیست.');
+                    return redirect()->back();
+
+                }
+
+            }
+
+        }else{
+
+            alert()->error('تاریخ تراکنش نباید قبل از تاریخ ثبت کارت و یا بعد از امروز باشد .', 'تاریخ بدرستی وارد نشده است');
+            return redirect()->back();
+
+        }
     }
 
 

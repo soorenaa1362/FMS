@@ -32,7 +32,7 @@ class IncomeController extends Controller
     public function store(Request $request, $card_id)
     {
         $card = Card::where('id', $card_id)->first();
-        $cardCreatedAt = convertShamsiToGregorianDate($card->created_at);
+        $cardCreatedAt = verta($card->created_at)->format('Y/m/d');
 
         $request->validate([
             'title' => 'required',
@@ -47,17 +47,23 @@ class IncomeController extends Controller
         $income->amount = $request->amount;
         $income->description = $request->description;
         $income->card_id = $card_id;
-        $income->save();
 
-        $newCash = $card->cash + $income->amount;
+        if( verta($income->date)->format('Y/m/d') >= $cardCreatedAt && verta($income->date) <= verta(now()) ){
+            $income->save();
 
-        $card->update([
-            'cash' => $newCash
-        ]);
+            $newCash = $card->cash + $income->amount;
 
+            $card->update([
+                'cash' => $newCash
+            ]);
 
-        alert()->success('تراکنش مورد نظر ثبت شد .', 'انجام شد');
-        return redirect()->route('incomes.index');
+            alert()->success('تراکنش مورد نظر ثبت شد .', 'انجام شد.');
+            return redirect()->route('incomes.index');
+        }else{
+            alert()->error('تاریخ تراکنش نباید قبل از تاریخ ثبت کارت و یا بعد از امروز باشد .', 'تاریخ بدرستی وارد نشده است');
+            return redirect()->back();
+        }
+
     }
 
 
@@ -86,6 +92,9 @@ class IncomeController extends Controller
     public function update(Request $request, $income_id)
     {
         $income = Income::where('id', $income_id)->first();
+        $oldIncomeAmount = $income->amount;
+        $card = Card::where('id', $income->card_id)->first();
+        $cardCreatedAt = verta($card->created_at)->format('Y/m/d');
 
         $request->validate([
             'title' => 'required',
@@ -94,15 +103,47 @@ class IncomeController extends Controller
             'card_id' => 'required',
         ]);
 
-        $income->update([
-            'title' => $request->title,
-            'amount' => $request->amount,
-            'date' => convertShamsiToGregorianDate($request->date),
-            'card_id' => $request->card_id,
-        ]);
+        $income->title = $request->title;
+        $income->amount = $request->amount;
+        $income->date = convertShamsiToGregorianDate($request->date);
+        $income->card_id = $request->card_id;
 
-        alert()->success('تراکنش مورد نظر بروزرسانی شد .', 'انجام شد');
-        return redirect()->route('incomes.index');
+        $newCard = Card::find($income->card_id);
+
+        if( verta($income->date)->format('Y/m/d') >= $cardCreatedAt && verta($income->date) <= verta(now()) ){
+
+            if($card == $newCard){
+
+                $income->update();
+                $newCash = ($card->cash - $oldIncomeAmount) + $income->amount;
+                $card->update([
+                    'cash' => $newCash
+                ]);
+
+            }else{
+
+                $income->update();
+                $oldCash = ($card->cash - $oldIncomeAmount);
+                $card->update([
+                    'cash' => $oldCash
+                ]);
+
+                $newCash = $newCard->cash + $income->amount;
+                $newCard->update([
+                    'cash' => $newCash
+                ]);
+
+            }
+
+            alert()->success('تراکنش مورد نظر ثبت شد .', 'انجام شد.');
+            return redirect()->route('incomes.index');
+
+        }else{
+
+            alert()->error('تاریخ تراکنش نباید قبل از تاریخ ثبت کارت و یا بعد از امروز باشد .', 'تاریخ بدرستی وارد نشده است');
+            return redirect()->back();
+
+        }
     }
 
 

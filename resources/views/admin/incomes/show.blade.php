@@ -29,7 +29,8 @@
                     </div>
 
                     <div class="form-group col-md-3">
-                        <label for="date">تاریخ</label>
+                        <label for="date">تاریخ و ساعت</label>
+                        {{-- <input class="form-control" value="{{ verta($income->date) }}" id="date" disabled> --}}
                         <input class="form-control" value="{{ verta($income->date)->format('Y/m/d') }}" id="date" disabled>
                     </div>
 
